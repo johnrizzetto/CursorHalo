@@ -67,4 +67,4 @@ open -R "$PWD/CursorHalo.app"
 
 `AppSettings` persists preferences. `PresentationState` handles idle visibility, locator timing, and display eligibility. `PresentationController` coordinates display timing, click monitoring, and overlay windows. `OverlayWindow` renders the effects, `HotKeyManager` registers shortcuts, and `SettingsView` provides the controls.
 
-`./test.sh` runs the automated tests. GitHub Actions runs tests and builds on macOS 14, verifies the app signature, and uploads a zipped app as a build artifact. This workflow does not publish a release or notarize the app.
+`./test.sh` runs the automated tests. GitHub Actions runs tests and builds on macOS 15, verifies the app signature, and uploads a zipped app as a build artifact. This workflow does not publish a release or notarize the app.
