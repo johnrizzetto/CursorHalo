@@ -74,6 +74,9 @@ final class AppSettings: ObservableObject {
     @Published var selectedDisplay: String { didSet { defaults.set(selectedDisplay, forKey: "selectedDisplay") } }
     @Published var refreshRate: Double { didSet { defaults.set(refreshRate, forKey: "refreshRate") } }
     @Published var mode: PointerMode { didSet { defaults.set(mode.rawValue, forKey: "pointerMode") } }
+    @Published var cursorStyle: CursorStyle { didSet { defaults.set(cursorStyle.rawValue, forKey: "cursorStyle") } }
+    @Published var cursorSize: Double { didSet { defaults.set(cursorSize, forKey: "cursorSize") } }
+    @Published var cursorColorHex: String { didSet { defaults.set(cursorColorHex, forKey: "cursorColorHex") } }
     @Published var shortcutErrors: [String] = []
 
     init(defaults: UserDefaults = .standard) {
@@ -94,6 +97,9 @@ final class AppSettings: ObservableObject {
         reduceMotion = defaults.object(forKey: "reduceMotion") as? Bool ?? false
         selectedDisplay = defaults.object(forKey: "selectedDisplay") as? String ?? "all"
         refreshRate = defaults.double(forKey: "refreshRate") == 30 ? 30 : 60
+        cursorStyle = CursorStyle(rawValue: defaults.string(forKey: "cursorStyle") ?? "") ?? .none
+        cursorSize = Self.bounded(defaults.object(forKey: "cursorSize") as? Double ?? 32, 16...80, fallback: 32)
+        cursorColorHex = Self.validColor(defaults.string(forKey: "cursorColorHex") ?? "#FF9500", fallback: "#FF9500")
         mode = PointerMode(rawValue: defaults.string(forKey: "pointerMode") ?? "") ?? .halo
     }
 
@@ -109,6 +115,7 @@ final class AppSettings: ObservableObject {
     static func validEffect(_ value: String) -> String { clickEffects.contains(value) ? value : "Ripple" }
     var effectiveReduceMotion: Bool { reduceMotion || NSWorkspace.shared.accessibilityDisplayShouldReduceMotion }
     var haloColor: Color { get { Color(hex: haloColorHex) } set { haloColorHex = newValue.toHex() } }
+    var cursorColor: Color { get { Color(hex: cursorColorHex) } set { cursorColorHex = newValue.toHex() } }
     var clickColor: Color { get { Color(hex: clickColorHex) } set { clickColorHex = newValue.toHex() } }
 
     func apply(_ preset: PresentationPreset) {

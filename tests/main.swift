@@ -107,6 +107,48 @@ check(previewView.haloLayer.position == CGPoint(x: 230.4, y: 44), "preview follo
 previewView.frame = CGRect(x: 0, y: 0, width: 400, height: 100)
 previewView.layout()
 check(previewView.haloLayer.position == CGPoint(x: 256, y: 50), "preview stays centered after layout changes")
+check(settings.cursorStyle == .none, "upgrading leaves decorative cursors off")
+settings.cursorStyle = .heart
+settings.cursorSize = 48
+settings.cursorColorHex = "#FF0088"
+let savedCursor = AppSettings(defaults: defaults)
+check(savedCursor.cursorStyle == .heart && savedCursor.cursorSize == 48 && savedCursor.cursorColorHex == "#FF0088", "cursor choice, size and color survive reload")
+defaults.set("Unknown shape", forKey: "cursorStyle")
+defaults.set(-10, forKey: "cursorSize")
+defaults.set("invalid", forKey: "cursorColorHex")
+let safeCursor = AppSettings(defaults: defaults)
+check(safeCursor.cursorStyle == .none && safeCursor.cursorSize == 16 && safeCursor.cursorColorHex == "#FF9500", "invalid cursor preferences recover safely")
+for kind in CursorStyle.allCases where kind != .none {
+    let path = CursorArtwork.path(for: kind, size: 40)
+    check(!path.isEmpty && path.boundingBoxOfPath.width <= 40.01 && path.boundingBoxOfPath.height <= 40.01, "\(kind.rawValue) artwork has bounded geometry")
+    settings.cursorStyle = kind
+    view.render(at: center, style: OverlayStyle(settings))
+    check(!view.cursorLayer.isHidden && view.cursorLayer.path != nil, "\(kind.rawValue) renders in the production overlay")
+}
+settings.cursorStyle = .crosshair
+view.render(at: center, style: OverlayStyle(settings))
+check(view.cursorLayer.position == center, "presentation targets stay on the click point")
+let cachedCursorPath = view.cursorLayer.path
+view.render(at: CGPoint(x: 410, y: 300), style: OverlayStyle(settings))
+check(view.cursorLayer.path === cachedCursorPath, "cursor movement reuses vector artwork")
+settings.cursorStyle = .star
+view.render(at: center, style: OverlayStyle(settings))
+check(view.cursorLayer.position.x > center.x && view.cursorLayer.position.y > center.y, "fun shapes sit beside the native cursor")
+settings.cursorSize = 64
+view.render(at: center, style: OverlayStyle(settings))
+check(view.cursorLayer.path?.boundingBoxOfPath.width ?? 0 > 40, "resizing updates cursor artwork")
+settings.apply(.demo)
+check(settings.cursorStyle == .star, "presentation presets preserve the chosen cursor")
+view.hide()
+check(view.cursorLayer.isHidden, "pausing hides the custom cursor immediately")
+settings.cursorStyle = .none
+view.render(at: center, style: OverlayStyle(settings))
+check(view.cursorLayer.isHidden, "None removes cursor decoration while retaining halo")
+settings.cursorStyle = .plane
+settings.cursorSize = 40
+let edgePoint = CGPoint(x: 798, y: 598)
+view.render(at: edgePoint, style: OverlayStyle(settings))
+check(view.cursorLayer.position.x + 23 <= view.bounds.maxX && view.cursorLayer.position.y + 23 <= view.bounds.maxY, "fun shapes remain visible near screen edges")
 let hotKeys = HotKeyManager()
 var triggers = 0
 let registered = hotKeys.register(id: 99, keyCode: UInt32(kVK_F18)) { triggers += 1 }

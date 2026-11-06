@@ -10,6 +10,9 @@ struct OverlayStyle: Equatable {
     let spotlight: Bool
     let spotlightSize: CGFloat
     let dimOpacity: CGFloat
+    let cursorStyle: CursorStyle
+    let cursorSize: CGFloat
+    let cursorColor: String
 
     init(_ settings: AppSettings, locating: Bool = false) {
         size = locating ? max(100, settings.haloSize) : settings.haloSize
@@ -19,6 +22,9 @@ struct OverlayStyle: Equatable {
         spotlight = settings.mode == .spotlight && !locating
         spotlightSize = settings.spotlightSize
         dimOpacity = settings.dimOpacity
+        cursorStyle = settings.cursorStyle
+        cursorSize = settings.cursorSize
+        cursorColor = settings.cursorColorHex
     }
 }
 
@@ -26,6 +32,8 @@ struct OverlayStyle: Equatable {
 class HaloOverlayView: NSView {
     let haloLayer = CAShapeLayer()
     let dimLayer = CAShapeLayer()
+    let cursorLayer = CAShapeLayer()
+    private let cursorEdgeLayer = CAShapeLayer()
     private let effectsLayer = CALayer()
     private var cachedStyle: OverlayStyle?
     private var cachedPosition: CGPoint?
@@ -37,6 +45,18 @@ class HaloOverlayView: NSView {
         layer?.addSublayer(dimLayer)
         layer?.addSublayer(haloLayer)
         layer?.addSublayer(effectsLayer)
+        layer?.addSublayer(cursorEdgeLayer)
+        layer?.addSublayer(cursorLayer)
+        cursorEdgeLayer.strokeColor = NSColor.white.cgColor
+        cursorEdgeLayer.fillColor = nil
+        cursorEdgeLayer.shadowColor = NSColor.black.cgColor
+        cursorEdgeLayer.shadowOpacity = 0.7
+        cursorEdgeLayer.shadowRadius = 1.5
+        cursorEdgeLayer.shadowOffset = .zero
+        for cursor in [cursorLayer, cursorEdgeLayer] {
+            cursor.lineCap = .round
+            cursor.lineJoin = .round
+        }
         dimLayer.fillRule = .evenOdd
         dimLayer.fillColor = NSColor.black.cgColor
         haloLayer.lineWidth = 2
@@ -59,6 +79,22 @@ class HaloOverlayView: NSView {
         haloLayer.isHidden = false
         haloLayer.position = position
         dimLayer.isHidden = !style.spotlight
+        cursorLayer.isHidden = style.cursorStyle == .none
+        cursorEdgeLayer.isHidden = cursorLayer.isHidden
+        let cursorPosition = CursorArtwork.position(for: style.cursorStyle, size: style.cursorSize, at: position, in: bounds)
+        cursorLayer.position = cursorPosition
+        cursorEdgeLayer.position = cursorPosition
+        if cachedStyle?.cursorStyle != style.cursorStyle || cachedStyle?.cursorSize != style.cursorSize || cachedStyle?.cursorColor != style.cursorColor {
+            let path = CursorArtwork.path(for: style.cursorStyle, size: style.cursorSize)
+            cursorLayer.path = path
+            cursorEdgeLayer.path = path
+            cursorEdgeLayer.shadowPath = style.cursorStyle.isFilled ? path : nil
+            let ink = NSColor(Color(hex: style.cursorColor)).cgColor
+            cursorLayer.strokeColor = ink
+            cursorLayer.fillColor = style.cursorStyle.isFilled ? ink : nil
+            cursorLayer.lineWidth = style.cursorStyle.isFilled ? 1.5 : 2.5
+            cursorEdgeLayer.lineWidth = cursorLayer.lineWidth + 3
+        }
         if styleChanged {
             let color = NSColor(Color(hex: style.color)).cgColor
             haloLayer.path = CGPath(ellipseIn: CGRect(x: -style.size / 2, y: -style.size / 2,
@@ -87,6 +123,8 @@ class HaloOverlayView: NSView {
         CATransaction.setDisableActions(true)
         haloLayer.isHidden = true
         dimLayer.isHidden = true
+        cursorLayer.isHidden = true
+        cursorEdgeLayer.isHidden = true
         effectsLayer.sublayers?.forEach { $0.removeAllAnimations(); $0.removeFromSuperlayer() }
         CATransaction.commit()
     }

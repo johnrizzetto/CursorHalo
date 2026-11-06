@@ -22,5 +22,12 @@
     "webLinter": "not applicable to native Swift",
     "physicalKeyboard": "not verified by automated key injection",
     "screenShare": "recipient view not verified"
+  },
+  "cursorUpdate": {
+    "version": "2.1",
+    "scope": "native Cursors tab",
+    "choices": 6,
+    "keeps": "native cursor, existing appearance and presentation controls",
+    "verification": "Installed picker, star/crosshair previews, accessible size increment/decrement and None removal observed using Computer Use"
   }
 }

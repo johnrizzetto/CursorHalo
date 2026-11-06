@@ -16,6 +16,16 @@ CursorHalo is a native macOS menu bar app that makes your pointer easier to foll
 
 Open the menu bar panel to adjust settings or quit CursorHalo. Effects pass mouse clicks through to the apps underneath. CursorHalo does not request Accessibility, Input Monitoring, or Screen Recording permission.
 
+## Cursor overlays
+
+Open the **Cursors** tab in the menu bar panel. Choose a shape, adjust its size and color, then press **Start** to use it.
+
+- **Presentation:** Laser dot, Crosshair, and Target ring stay centered on the click point.
+- **Just for fun:** Star, Heart, and Paper plane sit beside the native cursor. They reposition near screen edges to stay visible.
+- **None:** Remove the shape while keeping the halo and click settings.
+
+The live preview shows the shape together with the native cursor. macOS keeps its normal arrow, text cursor, or resize cursor visible. These overlays do not replace or hide it. Shape settings persist, presentation presets leave them unchanged, and pause, idle hiding, and display selection apply to them too.
+
 ## Keyboard shortcuts
 
 | Shortcut | Action |

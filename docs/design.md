@@ -23,3 +23,11 @@ Automated tests cover preference migration, corrupt persisted values, preset con
 - [Apple display-link lifecycle](https://developer.apple.com/documentation/quartzcore/cadisplaylink): pause callbacks when unused and invalidate on shutdown.
 - [Apple Reduce Motion](https://developer.apple.com/documentation/appkit/nsworkspace/accessibilitydisplayshouldreducemotion): honor the system preference.
 - [Apple single-window capture filter](https://developer.apple.com/documentation/screencapturekit/sccontentfilter/init(desktopindependentwindow:)): a separate overlay may be absent from a single-window share. Meeting-app behavior still needs recipient-side verification.
+
+## Cursor overlays, version 2.1
+
+User-approved scope: decorative overlays with the native macOS cursor remaining visible. A dedicated Cursors tab offers Laser dot, Crosshair and Target ring at the click point, plus Star, Heart and Paper plane offset above and right of the pointer. None restores the previous appearance. Size is adjustable from 16 to 80 points and color is independent of the halo. Choices persist and are not reset by presentation presets.
+
+CursorArtwork supplies resolution-independent paths to both the picker and production Core Animation layers. Geometry updates only when the shape, size or color changes. The existing controller applies the same pause, idle, display and sleep behavior to the cursor layer. No cursor-hiding APIs, event interception, extra permissions, network assets or animations are introduced. The preview keeps the native-arrow representation visible to show the actual combined appearance.
+
+Validation covers migration defaults, corrupt preferences, all six paths, display position, geometry reuse, size changes, preset preservation, immediate pause cleanup and removal via None. Verify the installed Cursors tab and preview, then run the complete existing suite and GitHub workflow.

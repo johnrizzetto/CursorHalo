@@ -48,13 +48,14 @@ struct SettingsView: View {
             }
             Picker("Settings", selection: $tab) {
                 Text("Pointer").tag(0)
+                Text("Cursors").tag(2)
                 Text("Meeting").tag(1)
             }
             .pickerStyle(.segmented)
             .labelsHidden()
             ScrollView {
                 VStack(alignment: .leading, spacing: 12) {
-                    if tab == 0 { pointerControls } else { meetingControls }
+                    if tab == 0 { pointerControls } else if tab == 2 { cursorControls } else { meetingControls }
                 }
                 .padding(.vertical, 2)
                 .padding(.trailing, 4)
@@ -101,7 +102,7 @@ struct SettingsView: View {
         .clipShape(RoundedRectangle(cornerRadius: HaloTheme.radius))
         .overlay(RoundedRectangle(cornerRadius: HaloTheme.radius).stroke(HaloTheme.divider, lineWidth: 1))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("Live preview: \(settings.mode.rawValue), \(Int(settings.haloSize)) point halo, \(Int(settings.haloOpacity * 100)) percent fill. Activate to test click feedback.")
+        .accessibilityLabel("Live preview: \(settings.cursorStyle.rawValue) cursor overlay, \(settings.mode.rawValue), \(Int(settings.haloSize)) point halo, \(Int(settings.haloOpacity * 100)) percent fill. Activate to test click feedback.")
     }
 
     private var pointerControls: some View {
@@ -134,6 +135,27 @@ struct SettingsView: View {
                 slider("Click size", value: $settings.clickEffectScale, range: 1.2...3, step: 0.1,
                        display: String(format: "%.1f×", settings.clickEffectScale))
             }.disabled(!settings.enableClickPulse)
+        }
+    }
+
+    private var cursorControls: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Text(settings.cursorStyle == .none ? "No cursor overlay" : settings.cursorStyle.rawValue)
+                Spacer()
+                Button("None") { settings.cursorStyle = .none }
+                    .disabled(settings.cursorStyle == .none)
+                    .help("Remove the shape and keep your halo settings")
+            }
+            CursorChoiceRow(title: "Presentation", choices: CursorStyle.presentation, selection: $settings.cursorStyle, color: settings.cursorColor)
+            CursorChoiceRow(title: "Just for fun", choices: CursorStyle.playful, selection: $settings.cursorStyle, color: settings.cursorColor)
+            slider("Shape size", value: $settings.cursorSize, range: 16...80, step: 2, display: "\(Int(settings.cursorSize)) pt")
+                .disabled(settings.cursorStyle == .none)
+            ColorPicker("Shape color", selection: Binding(get: { settings.cursorColor }, set: { settings.cursorColor = $0 }), supportsOpacity: false)
+                .disabled(settings.cursorStyle == .none)
+            Text("The native cursor stays visible. Fun shapes sit beside it.")
+                .font(HaloTheme.caption).foregroundStyle(HaloTheme.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 
