@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Check out source
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7.0.1
       - name: Run tests
         run: ./test.sh
       - name: Build app
@@ -23,7 +23,7 @@ jobs:
       - name: Zip app bundle
         run: ditto -c -k --sequesterRsrc --keepParent CursorHalo.app CursorHalo-macos.zip
       - name: Upload build artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: CursorHalo-macos
           path: CursorHalo-macos.zip
