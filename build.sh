@@ -1,5 +1,6 @@
 #!/bin/bash
-set -e
+set -euo pipefail
+cd "$(dirname "$0")"
 
 # Output folder name
 APP_DIR="CursorHalo.app"
@@ -12,16 +13,13 @@ mkdir -p "$RESOURCES_DIR"
 
 echo "Compiling CursorHalo Swift sources..."
 swiftc -O \
-  -sdk $(xcrun --show-sdk-path) \
-  -target arm64-apple-macosx14.0 \
+  -sdk "$(xcrun --show-sdk-path)" \
+  -target "${ARCH:-$(uname -m)}-apple-macosx14.0" \
   -framework Cocoa \
   -framework SwiftUI \
   -framework QuartzCore \
   -framework Carbon \
-  src/HotKey.swift \
-  src/SettingsView.swift \
-  src/OverlayWindow.swift \
-  src/main.swift \
+  src/*.swift \
   -o "$MACOS_DIR/CursorHalo"
 
 # Create Info.plist to specify app properties, minimum system requirements, and LSUIElement (run as menu bar accessory)
@@ -43,9 +41,9 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOF
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>
-    <string>1.0</string>
+    <string>2.0</string>
     <key>CFBundleVersion</key>
-    <string>1</string>
+    <string>2</string>
     <key>LSMinimumSystemVersion</key>
     <string>14.0</string>
     <key>LSUIElement</key>
@@ -54,4 +52,6 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
+codesign --force --sign - "$APP_DIR"
+plutil -lint "$APP_DIR/Contents/Info.plist"
 echo "CursorHalo.app built successfully!"

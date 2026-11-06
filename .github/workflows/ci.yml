@@ -1,0 +1,30 @@
+name: macOS build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Run tests
+        run: ./test.sh
+      - name: Build app
+        run: ./build.sh
+      - name: Verify app signature
+        run: codesign --verify --deep --strict --verbose=2 CursorHalo.app
+      - name: Zip app bundle
+        run: ditto -c -k --sequesterRsrc --keepParent CursorHalo.app CursorHalo-macos.zip
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: CursorHalo-macos
+          path: CursorHalo-macos.zip
+          if-no-files-found: error

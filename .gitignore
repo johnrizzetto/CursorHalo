@@ -1,2 +1,5 @@
 CursorHalo.app/
 .DS_Store
+
+.build/
+*.zip

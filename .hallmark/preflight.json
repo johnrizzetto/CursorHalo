@@ -1,0 +1,26 @@
+{
+  "scope": "native-app",
+  "version": "2.0.0",
+  "source": "src/SettingsView.swift",
+  "keeps": [
+    "native menu bar",
+    "saved colors",
+    "four click effects",
+    "Cmd+Shift+H"
+  ],
+  "introduces": [
+    "live preview",
+    "presets",
+    "semantic theme",
+    "native focus and color controls"
+  ],
+  "adaptation": "AppKit/SwiftUI: web CSS scaffold and sloplint not applicable",
+  "before": "280pt scrolling panel, tiny gesture-only color targets, no preview",
+  "verification": {
+    "nativePanel": "observed using Computer Use, including tab switching, preview, pause and spotlight controls",
+    "regression": "preview anchoring now follows final AppKit layout",
+    "webLinter": "not applicable to native Swift",
+    "physicalKeyboard": "not verified by automated key injection",
+    "screenShare": "recipient view not verified"
+  }
+}
